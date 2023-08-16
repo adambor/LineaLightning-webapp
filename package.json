@@ -17,7 +17,7 @@
     "cross-fetch": "^3.1.5",
     "crypto-browserify": "^3.12.0",
     "ethers": "^5.7.2",
-    "evmlightning-sdk": "^3.2.3",
+    "evmlightning-sdk": "^4.0.2",
     "process": "^0.11.10",
     "qr-scanner": "^1.4.2",
     "qrcode.react": "^3.1.0",

@@ -63,6 +63,27 @@ function SwapTab(props: {
         setVerifyAmount(false);
     }, [verifyAmount]);
 
+    const [notEnoughBalance, setNotEnoughBalance] = useState<boolean>(false);
+
+    useEffect(() => {
+        setNotEnoughBalance(false);
+        (async() => {
+            if(kind==="BTCLNtoSol") {
+                const commitFee = await props.swapper.frombtcln.contract.swapContract.getCommitFee();
+                const claimFee = await props.swapper.frombtcln.contract.swapContract.getClaimFee();
+                const totalFee = commitFee.add(claimFee);
+
+                //Get balance
+                const balance = new BN((await props.signer.getBalance()).toString());
+
+                if(totalFee.mul(new BN(15)).div(new BN(10)).gt(balance)) {
+                    //Not enough balance
+                    setNotEnoughBalance(true);
+                }
+            }
+        })();
+    }, [kind, props.swapper]);
+
     return (
         <Card className="p-3">
 
@@ -119,12 +140,12 @@ function SwapTab(props: {
                                         setKind("SoltoBTCLN");
                                     }
                                     setVerifyAddress(true);
-                                } else if(props.swapper.isValidBitcoinAddress(resultText)) {
-                                    setKind("SoltoBTC");
-                                    setVerifyAddress(true);
-                                    if(_amount!=null) {
-                                        setStep(1);
-                                    }
+                                // } else if(props.swapper.isValidBitcoinAddress(resultText)) {
+                                //     setKind("SoltoBTC");
+                                //     setVerifyAddress(true);
+                                //     if(_amount!=null) {
+                                //         setStep(1);
+                                //     }
                                 } else {
                                     setVerifyAddress(true);
                                 }
@@ -144,6 +165,13 @@ function SwapTab(props: {
             </Modal>
 
             <Card.Title>Swap now</Card.Title>
+
+            {notEnoughBalance && kind==="BTCLNtoSol" ? (
+                <Alert>
+                    <strong>NOTE: </strong>You don't have enough ETH in you wallet to cover gas costs of claim transaction!
+                </Alert>
+            ) : ""}
+
             <Card.Body>
                 <ValidatedInput
                     disabled={step!==0}
@@ -169,18 +197,18 @@ function SwapTab(props: {
                                 value: "ETH",
                                 key: FEConstants.ethToken
                             },
-                            {
-                                value: "WBTC",
-                                key: FEConstants.wbtcToken
-                            },
-                            {
-                                value: "USDC",
-                                key: FEConstants.usdcToken
-                            },
-                            {
-                                value: "USDT",
-                                key: FEConstants.usdtToken
-                            }
+                            // {
+                            //     value: "WBTC",
+                            //     key: FEConstants.wbtcToken
+                            // },
+                            // {
+                            //     value: "USDC",
+                            //     key: FEConstants.usdcToken
+                            // },
+                            // {
+                            //     value: "USDT",
+                            //     key: FEConstants.usdtToken
+                            // }
                         ]
                     }
                 />
@@ -214,18 +242,18 @@ function SwapTab(props: {
                                 value: "BTC-LN -> Linea",
                                 key: "BTCLNtoSol"
                             },
-                            {
-                                value: "BTC -> Linea",
-                                key: "BTCtoSol"
-                            },
+                            // {
+                            //     value: "BTC -> Linea",
+                            //     key: "BTCtoSol"
+                            // },
                             {
                                 value: "Linea -> BTC-LN",
                                 key: "SoltoBTCLN"
                             },
-                            {
-                                value: "Linea -> BTC",
-                                key: "SoltoBTC"
-                            }
+                            // {
+                            //     value: "Linea -> BTC",
+                            //     key: "SoltoBTC"
+                            // }
                         ]
                     }
                 />
@@ -238,7 +266,7 @@ function SwapTab(props: {
                             type="number"
                             value={amount}
                             size={"lg"}
-                            label={(<span className="fw-semibold">Enter amount</span>)}
+                            label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                             onChange={(val) => {
                                 setAmount(val);
                             }}
@@ -456,7 +484,7 @@ function SwapTab(props: {
                                 type="number"
                                 value={amount}
                                 size={"lg"}
-                                label={(<span className="fw-semibold">Enter amount</span>)}
+                                label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                                 onChange={(val) => {
                                     setAmount(val);
                                 }}
@@ -520,7 +548,7 @@ function SwapTab(props: {
                             type="number"
                             value={amount}
                             size={"lg"}
-                            label={(<span className="fw-semibold">Enter amount</span>)}
+                            label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                             onChange={(val) => {
                                 setAmount(val);
                             }}

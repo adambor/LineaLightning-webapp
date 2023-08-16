@@ -2,15 +2,15 @@ import BigNumber from "bignumber.js";
 
 export const FEConstants = {
     ethereum: {
-        chainId: 59140,
-        chainName: "Linea Testnet",
+        chainId: 59144,
+        chainName: "Linea",
         nativeCurrency: {
-            name: "LineaETH",
+            name: "ETH",
             symbol: "ETH",
             decimals: 18
         },
-        blockExplorerUrls: ["https://explorer.goerli.linea.build"],
-        rpcUrls: ["https://rpc.goerli.linea.build"]
+        blockExplorerUrls: ["https://explorer.linea.build"],
+        rpcUrls: ["https://linea-mainnet.infura.io/v3/dcc43582332146c8b223e180181247c7"]
     },
     wbtcToken: "0xDbcd5BafBAA8c1B326f14EC0c8B125DB57A5cC4c",
     usdcToken: "0xf56dc6695cF1f5c364eDEbC7Dc7077ac9B586068",

@@ -44,6 +44,23 @@ function SwapTab(props) {
         amountRef.current.validate();
         setVerifyAmount(false);
     }, [verifyAmount]);
+    const [notEnoughBalance, setNotEnoughBalance] = useState(false);
+    useEffect(() => {
+        setNotEnoughBalance(false);
+        (async () => {
+            if (kind === "BTCLNtoSol") {
+                const commitFee = await props.swapper.frombtcln.contract.swapContract.getCommitFee();
+                const claimFee = await props.swapper.frombtcln.contract.swapContract.getClaimFee();
+                const totalFee = commitFee.add(claimFee);
+                //Get balance
+                const balance = new BN((await props.signer.getBalance()).toString());
+                if (totalFee.mul(new BN(15)).div(new BN(10)).gt(balance)) {
+                    //Not enough balance
+                    setNotEnoughBalance(true);
+                }
+            }
+        })();
+    }, [kind, props.swapper]);
     return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: scanning, onHide: () => setScanning(false) }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Scan the lightning invoice" }) })), _jsx(Modal.Body, { children: _jsx(QRScanner, { onResult: (result, error) => {
                                 if (!scanningRef.current)
                                     return;
@@ -92,13 +109,12 @@ function SwapTab(props) {
                                             setKind("SoltoBTCLN");
                                         }
                                         setVerifyAddress(true);
-                                    }
-                                    else if (props.swapper.isValidBitcoinAddress(resultText)) {
-                                        setKind("SoltoBTC");
-                                        setVerifyAddress(true);
-                                        if (_amount != null) {
-                                            setStep(1);
-                                        }
+                                        // } else if(props.swapper.isValidBitcoinAddress(resultText)) {
+                                        //     setKind("SoltoBTC");
+                                        //     setVerifyAddress(true);
+                                        //     if(_amount!=null) {
+                                        //         setStep(1);
+                                        //     }
                                     }
                                     else {
                                         setVerifyAddress(true);
@@ -107,7 +123,7 @@ function SwapTab(props) {
                             }, camera: "environment" }) }), _jsx(Modal.Footer, { children: _jsx(Button, Object.assign({ variant: "secondary", onClick: () => {
                                 setScanning(false);
                                 scanningRef.current = false;
-                            } }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: tokenRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Token" }))), size: "lg", value: token, onChange: (val) => {
+                            } }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), notEnoughBalance && kind === "BTCLNtoSol" ? (_jsxs(Alert, { children: [_jsx("strong", { children: "NOTE: " }), "You don't have enough ETH in you wallet to cover gas costs of claim transaction!"] })) : "", _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: tokenRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Token" }))), size: "lg", value: token, onChange: (val) => {
                             console.log("Value selected: ", val);
                             setToken(val);
                         }, placeholder: "Enter amount you want to send", onValidate: (val) => {
@@ -117,18 +133,18 @@ function SwapTab(props) {
                                 value: "ETH",
                                 key: FEConstants.ethToken
                             },
-                            {
-                                value: "WBTC",
-                                key: FEConstants.wbtcToken
-                            },
-                            {
-                                value: "USDC",
-                                key: FEConstants.usdcToken
-                            },
-                            {
-                                value: "USDT",
-                                key: FEConstants.usdtToken
-                            }
+                            // {
+                            //     value: "WBTC",
+                            //     key: FEConstants.wbtcToken
+                            // },
+                            // {
+                            //     value: "USDC",
+                            //     key: FEConstants.usdcToken
+                            // },
+                            // {
+                            //     value: "USDT",
+                            //     key: FEConstants.usdtToken
+                            // }
                         ] }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: kindRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Type" }))), size: "lg", value: "" + kind, onChange: (val) => {
                             console.log("Value selected: ", val);
                             setKind(val);
@@ -144,19 +160,19 @@ function SwapTab(props) {
                                 value: "BTC-LN -> Linea",
                                 key: "BTCLNtoSol"
                             },
-                            {
-                                value: "BTC -> Linea",
-                                key: "BTCtoSol"
-                            },
+                            // {
+                            //     value: "BTC -> Linea",
+                            //     key: "BTCtoSol"
+                            // },
                             {
                                 value: "Linea -> BTC-LN",
                                 key: "SoltoBTCLN"
                             },
-                            {
-                                value: "Linea -> BTC",
-                                key: "SoltoBTC"
-                            }
-                        ] }), kind === "BTCLNtoSol" || kind === "BTCtoSol" ? (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { disabled: step !== 0 || (kind === "BTCLNtoSol" && lnurlState != null && lnurlState.max.eq(lnurlState.min)), inputRef: amountRef, className: "mb-4 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                            // {
+                            //     value: "Linea -> BTC",
+                            //     key: "SoltoBTC"
+                            // }
+                        ] }), kind === "BTCLNtoSol" || kind === "BTCtoSol" ? (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { disabled: step !== 0 || (kind === "BTCLNtoSol" && lnurlState != null && lnurlState.max.eq(lnurlState.min)), inputRef: amountRef, className: "mb-4 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, textEnd: (kind === "BTCLNtoSol" && lnurlState != null && !lnurlState.max.eq(lnurlState.min)) ? (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => {
                                         setAmount(new BigNumber(BN.min(props.swapper.getMaximum(SwapType.FROM_BTCLN), lnurlState.max).toString(10)).dividedBy(new BigNumber(100000000)).toFixed(8));
@@ -289,7 +305,7 @@ function SwapTab(props) {
                                         console.error(e);
                                         return "Invalid lightning invoice!";
                                     }
-                                } }), (lnurlState === null || lnurlState === void 0 ? void 0 : lnurlState.shortDescription) ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: [lnurlState.icon ? (_jsx("img", { src: lnurlState.icon })) : "", _jsx("span", { children: lnurlState.shortDescription })] }))) : "", lnurlState != null ? (_jsx(ValidatedInput, { disabled: step !== 0 || lnurlState.min.eq(lnurlState.max), inputRef: amountRef, className: "mt-1 strip-group-text mb-3", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                                } }), (lnurlState === null || lnurlState === void 0 ? void 0 : lnurlState.shortDescription) ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: [lnurlState.icon ? (_jsx("img", { src: lnurlState.icon })) : "", _jsx("span", { children: lnurlState.shortDescription })] }))) : "", lnurlState != null ? (_jsx(ValidatedInput, { disabled: step !== 0 || lnurlState.min.eq(lnurlState.max), inputRef: amountRef, className: "mt-1 strip-group-text mb-3", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, min: new BigNumber(BN.max(props.swapper.getMinimum(SwapType.TO_BTCLN), lnurlState.min).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(BN.min(props.swapper.getMaximum(SwapType.TO_BTCLN), lnurlState.max).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;
@@ -303,7 +319,7 @@ function SwapTab(props) {
                                         return "Cannot be empty";
                                     if (!props.swapper.isValidBitcoinAddress(val))
                                         return "Invalid bitcoin address";
-                                } }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                                } }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, min: new BigNumber(props.swapper.getMinimum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(props.swapper.getMaximum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;
